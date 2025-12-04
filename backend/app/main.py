@@ -14,6 +14,10 @@ app = FastAPI(
     description="Automation & Data Pipeline Dashboard API",
     version="0.1.0",
     lifespan=lifespan,
+    contact={
+        "name": "Mohammad Afsharfar",
+        "email": "your.email@example.com",  # Update with your email
+    },
 )
 
 origins = [

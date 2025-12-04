@@ -11,24 +11,28 @@ A full-stack platform to orchestrate, monitor, and analyze data pipelines (web s
 ## 🎯 Key Features
 
 ### **Job & Pipeline Management**
+
 - **Create & Schedule Jobs**: Define cron-based jobs (scrapers, PDF processors, API syncs, custom scripts)
 - **Pipeline Orchestration**: Chain multiple jobs into pipelines with dependency management
 - **Manual & Scheduled Execution**: Trigger jobs on-demand or via cron schedules
 - **Run History & Logs**: Complete audit trail with live log streaming via WebSockets
 
 ### **Real-Time Monitoring**
+
 - **Live Dashboard**: Real-time metrics (total jobs, active pipelines, today's runs, failure rate)
 - **Run History Visualization**: 7-day trend charts showing success vs failure rates
 - **WebSocket Updates**: Live status updates without page refresh
 - **Job Detail Views**: Per-job run history with timestamps, duration, exit codes, and logs
 
 ### **Enterprise Features**
+
 - **JWT Authentication**: Secure access tokens with refresh token support
 - **Role-Based Access Control (RBAC)**: Admin, Developer, and Viewer roles
 - **User Management**: Full CRUD for user accounts with role assignment
 - **API-First Design**: RESTful API with OpenAPI/Swagger documentation
 
 ### **Production-Ready Architecture**
+
 - **Background Workers**: Celery workers for async job execution
 - **Task Queue**: Redis-backed message queue for reliable job processing
 - **Database Migrations**: Alembic for schema versioning
@@ -40,6 +44,7 @@ A full-stack platform to orchestrate, monitor, and analyze data pipelines (web s
 ## 🏗️ Architecture
 
 ### **Backend** (`backend/`)
+
 - **FastAPI** – High-performance async API framework
 - **SQLModel** – Type-safe ORM with Pydantic integration
 - **PostgreSQL** – Production-grade relational database
@@ -48,6 +53,7 @@ A full-stack platform to orchestrate, monitor, and analyze data pipelines (web s
 - **WebSockets** – Real-time bidirectional communication
 
 ### **Frontend** (`frontend/`)
+
 - **React 19** – Modern UI library
 - **TypeScript** – Type-safe frontend code
 - **Tailwind CSS** – Utility-first styling
@@ -56,6 +62,7 @@ A full-stack platform to orchestrate, monitor, and analyze data pipelines (web s
 - **Custom Hooks** – Reusable WebSocket and API hooks
 
 ### **DevOps**
+
 - **Docker Compose** – Multi-container orchestration
 - **PostgreSQL** – Database container
 - **Redis** – Cache & message broker
@@ -66,6 +73,7 @@ A full-stack platform to orchestrate, monitor, and analyze data pipelines (web s
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Docker & Docker Compose
 - (Optional) Node.js 18+ and Python 3.11+ for local development
 
@@ -88,6 +96,7 @@ docker compose up --build
 ### Local Development
 
 **Backend:**
+
 ```bash
 cd backend
 python -m venv .venv
@@ -98,6 +107,7 @@ uvicorn app.main:app --reload
 ```
 
 **Frontend:**
+
 ```bash
 cd frontend
 npm install
@@ -109,10 +119,12 @@ npm run dev
 ## 📊 API Endpoints
 
 ### Authentication
+
 - `POST /api/v1/auth/login` – Get access token
 - `POST /api/v1/auth/test-token` – Validate token
 
 ### Jobs
+
 - `GET /api/v1/jobs/` – List all jobs
 - `POST /api/v1/jobs/` – Create new job
 - `GET /api/v1/jobs/{id}` – Get job details
@@ -120,16 +132,19 @@ npm run dev
 - `GET /api/v1/jobs/{id}/runs` – Get job run history
 
 ### Pipelines
+
 - `GET /api/v1/pipelines/` – List all pipelines
 - `POST /api/v1/pipelines/` – Create new pipeline
 - `GET /api/v1/pipelines/{id}` – Get pipeline details
 - `POST /api/v1/pipelines/{id}/run` – Trigger pipeline execution
 
 ### Dashboard
+
 - `GET /api/v1/dashboard/summary` – Get dashboard metrics
 - `GET /api/v1/dashboard/runs-per-day` – Get time-series data
 
 ### WebSockets
+
 - `WS /api/v1/ws/dashboard` – Live dashboard updates
 - `WS /api/v1/ws/jobs/{id}/logs` – Live job logs
 
@@ -140,6 +155,7 @@ npm run dev
 ## 🎨 Screenshots
 
 _Add screenshots here:_
+
 - Dashboard overview with metrics cards and charts
 - Jobs list with status badges and actions
 - Job detail page with run history table
@@ -190,16 +206,16 @@ npm test
 
 ## 🛠️ Tech Stack Summary
 
-| Layer | Technology |
-|-------|-----------|
-| **Backend Framework** | FastAPI |
-| **Database** | PostgreSQL (SQLModel ORM) |
-| **Task Queue** | Celery + Redis |
-| **Frontend** | React 19 + TypeScript |
-| **Styling** | Tailwind CSS |
-| **Real-Time** | WebSockets (FastAPI) |
-| **Auth** | JWT (python-jose) |
-| **Deployment** | Docker + Docker Compose |
+| Layer                 | Technology                |
+| --------------------- | ------------------------- |
+| **Backend Framework** | FastAPI                   |
+| **Database**          | PostgreSQL (SQLModel ORM) |
+| **Task Queue**        | Celery + Redis            |
+| **Frontend**          | React 19 + TypeScript     |
+| **Styling**           | Tailwind CSS              |
+| **Real-Time**         | WebSockets (FastAPI)      |
+| **Auth**              | JWT (python-jose)         |
+| **Deployment**        | Docker + Docker Compose   |
 
 ---
 
@@ -215,21 +231,27 @@ npm test
 
 ## 📄 License
 
-[Your License Here]
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+Copyright (c) 2025 Mohammad Afsharfar
 
 ---
 
 ## 👤 Author
 
-[Your Name] – [Your Email/Website]
+**Mohammad Afsharfar**
+
+- Portfolio: https://nimastudio.site
+- GitHub: [@ne3mer](https://github.com/ne3mer)
+- Email: [ne3mer@gmail.com]
 
 ---
 
 ## 🙏 Acknowledgments
 
 Built with:
+
 - [FastAPI](https://fastapi.tiangolo.com/)
 - [React](https://react.dev/)
 - [Celery](https://docs.celeryq.dev/)
 - [SQLModel](https://sqlmodel.tiangolo.com/)
-
