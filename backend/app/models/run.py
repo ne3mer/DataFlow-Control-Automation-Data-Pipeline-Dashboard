@@ -6,12 +6,8 @@ from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from sqlmodel import Column, Field, JSON, Relationship, SQLModel
 
-from .job import JobStatus
-from .pipeline import PipelineStatus
-
-if TYPE_CHECKING:  # pragma: no cover - for type checkers only
-    from .job import Job
-    from .pipeline import Pipeline
+from .job import Job, JobStatus
+from .pipeline import Pipeline, PipelineStatus
 
 
 class RunStatus(str, Enum):
@@ -38,7 +34,7 @@ class JobRun(JobRunBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
     # Plain "Job" annotation avoids SQLAlchemy treating Optional[...] as a generic.
-    job: "Job" = Relationship(back_populates="runs")
+    job: Job = Relationship(back_populates="runs")
 
 
 class JobRunRead(JobRunBase):
@@ -58,7 +54,8 @@ class PipelineRunBase(SQLModel):
 class PipelineRun(PipelineRunBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
-    pipeline: "Pipeline" = Relationship(back_populates="runs")
+    # Plain "Pipeline" annotation avoids SQLAlchemy treating Optional[...] as a generic.
+    pipeline: Pipeline = Relationship(back_populates="runs")
 
 
 class PipelineRunRead(PipelineRunBase):

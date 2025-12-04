@@ -97,10 +97,40 @@ def scrape_task(self, job_id: int, url: str) -> str:
 
             soup = BeautifulSoup(response.text, "html.parser")
             title = soup.title.string if soup.title else "No title found"
-            summary = f"Scraped {url}: Title='{title}', Length={len(response.text)} bytes"
+            
+            # Extract more data for display
+            links = [a.get("href", "") for a in soup.find_all("a", href=True)][:20]  # First 20 links
+            images = [img.get("src", "") for img in soup.find_all("img", src=True)][:10]  # First 10 images
+            meta_description = ""
+            meta_tag = soup.find("meta", attrs={"name": "description"})
+            if meta_tag:
+                meta_description = meta_tag.get("content", "")
+            
+            # Get first paragraph of text
+            paragraphs = soup.find_all("p")
+            first_paragraph = paragraphs[0].get_text(strip=True)[:200] if paragraphs else ""
+            
+            summary = f"Scraped {url}: Title='{title}', Found {len(links)} links, {len(images)} images"
 
-            run.logs = f"HTTP {response.status_code}\nTitle: {title}\nBody length: {len(response.text)}"
-            run.metrics = {"content_length": len(response.text)}
+            run.logs = f"""HTTP {response.status_code}
+Title: {title}
+Meta Description: {meta_description[:100] if meta_description else 'N/A'}
+Body length: {len(response.text)} bytes
+Links found: {len(links)}
+Images found: {len(images)}
+First paragraph: {first_paragraph}"""
+
+            run.metrics = {
+                "content_length": len(response.text),
+                "title": title,
+                "meta_description": meta_description,
+                "links_count": len(links),
+                "images_count": len(images),
+                "links": links[:10],  # Store first 10 links
+                "images": images[:5],  # Store first 5 images
+                "first_paragraph": first_paragraph,
+                "url": url
+            }
 
             _update_job_after_run(session, job, run, RunStatus.COMPLETED, 0, summary)
             return summary
