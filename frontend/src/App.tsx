@@ -3,6 +3,8 @@ import { AuthProvider, useAuth } from './features/auth/AuthContext';
 import { LoginPage } from './features/auth/LoginPage';
 import { Layout } from './components/Layout';
 import { DashboardPage } from './features/dashboard/DashboardPage';
+import { JobsPage } from './features/jobs/JobsPage';
+import { JobDetailPage } from './features/jobs/JobDetailPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -25,6 +27,26 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <DashboardPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/jobs"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <JobsPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/jobs/:id"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <JobDetailPage />
                 </Layout>
               </ProtectedRoute>
             }
