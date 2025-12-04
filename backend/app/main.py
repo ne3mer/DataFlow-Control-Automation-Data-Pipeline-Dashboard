@@ -1,10 +1,19 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from contextlib import asynccontextmanager
+from app.core.db import init_db
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
 app = FastAPI(
     title="DataFlow Control",
     description="Automation & Data Pipeline Dashboard API",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 origins = [
