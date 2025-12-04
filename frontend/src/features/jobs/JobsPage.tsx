@@ -55,6 +55,19 @@ export const JobsPage: React.FC = () => {
     }
   };
 
+  const deleteJob = async (id: number) => {
+    if (!window.confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
+      return;
+    }
+    try {
+      await api.delete(`/jobs/${id}`);
+      fetchJobs(); // Refresh list
+    } catch (error: any) {
+      alert(error.response?.data?.detail || 'Failed to delete job');
+      console.error('Failed to delete job', error);
+    }
+  };
+
   const createJob = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -192,24 +205,36 @@ export const JobsPage: React.FC = () => {
                   {job.next_run_at ? new Date(job.next_run_at).toLocaleString() : '-'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  {job.status === 'running' ? (
-                    <button
-                      onClick={() => cancelJob(job.id)}
-                      className="text-red-600 hover:text-red-900 mr-4"
+                  <div className="flex items-center justify-end gap-2">
+                    {job.status === 'running' ? (
+                      <button
+                        onClick={() => cancelJob(job.id)}
+                        className="text-red-600 hover:text-red-900 px-3 py-1 rounded hover:bg-red-50 transition"
+                      >
+                        Stop
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => runJob(job.id)}
+                        className="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded hover:bg-indigo-50 transition"
+                      >
+                        Run
+                      </button>
+                    )}
+                    <Link 
+                      to={`/jobs/${job.id}`} 
+                      className="text-gray-600 hover:text-gray-900 px-3 py-1 rounded hover:bg-gray-50 transition"
                     >
-                      Stop
-                    </button>
-                  ) : (
+                      View
+                    </Link>
                     <button
-                      onClick={() => runJob(job.id)}
-                      className="text-indigo-600 hover:text-indigo-900 mr-4"
+                      onClick={() => deleteJob(job.id)}
+                      className="text-red-600 hover:text-red-900 px-3 py-1 rounded hover:bg-red-50 transition"
+                      title="Delete job"
                     >
-                      Run
+                      🗑️
                     </button>
-                  )}
-                  <Link to={`/jobs/${job.id}`} className="text-gray-600 hover:text-gray-900">
-                    View
-                  </Link>
+                  </div>
                 </td>
               </tr>
             ))}

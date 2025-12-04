@@ -109,6 +109,36 @@ def cancel_job(
     return job
 
 
+@router.delete("/{job_id}")
+def delete_job(
+    job_id: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(deps.get_current_user),
+) -> Any:
+    """
+    Delete a job and all its runs.
+    """
+    job = session.get(Job, job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    # Check if job is running
+    if job.status == JobStatus.RUNNING:
+        raise HTTPException(status_code=400, detail="Cannot delete a running job. Please cancel it first.")
+    
+    # Delete all related runs first
+    runs = session.exec(
+        select(JobRun).where(JobRun.job_id == job_id)
+    ).all()
+    for run in runs:
+        session.delete(run)
+    
+    # Then delete the job
+    session.delete(job)
+    session.commit()
+    return {"message": "Job deleted successfully"}
+
+
 @router.get("/{job_id}/runs", response_model=List[JobRunRead])
 def read_job_runs(
     job_id: int,

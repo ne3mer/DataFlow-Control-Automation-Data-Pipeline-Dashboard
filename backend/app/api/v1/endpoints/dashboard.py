@@ -83,3 +83,36 @@ def runs_per_day(
     return result
 
 
+@router.get("/recent-runs")
+def recent_runs(
+    limit: int = 10,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(deps.get_current_user),
+) -> List[Dict[str, Any]]:
+    """
+    Get recent job runs for the activity feed.
+    """
+    from sqlmodel import select
+    
+    runs = session.exec(
+        select(JobRun)
+        .order_by(JobRun.started_at.desc())
+        .limit(limit)
+    ).all()
+    
+    result = []
+    for run in runs:
+        job = session.get(Job, run.job_id)
+        if job:
+            result.append({
+                "id": run.id,
+                "job_name": job.name,
+                "status": run.status,
+                "duration_ms": run.duration_ms,
+                "started_at": run.started_at.isoformat() if run.started_at else None,
+                "exit_code": run.exit_code,
+            })
+    
+    return result
+
+
