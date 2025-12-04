@@ -39,14 +39,90 @@ export const JobsPage: React.FC = () => {
     }
   };
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newJob, setNewJob] = useState({ name: '', type: 'script', schedule: '' });
+
+  const createJob = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await api.post('/jobs/', newJob);
+      setIsModalOpen(false);
+      setNewJob({ name: '', type: 'script', schedule: '' });
+      fetchJobs();
+    } catch (error) {
+      console.error('Failed to create job', error);
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Jobs</h1>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
           Create Job
         </button>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+          <div className="bg-white p-8 rounded-md shadow-xl w-96">
+            <h2 className="text-xl font-bold mb-4">Create New Job</h2>
+            <form onSubmit={createJob}>
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">Name</label>
+                <input
+                  type="text"
+                  value={newJob.name}
+                  onChange={(e) => setNewJob({ ...newJob, name: e.target.value })}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">Type</label>
+                <select
+                  value={newJob.type}
+                  onChange={(e) => setNewJob({ ...newJob, type: e.target.value })}
+                  className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                >
+                  <option value="custom">Custom Script</option>
+                  <option value="scraper">Scraper</option>
+                  <option value="pdf_processor">PDF Processor</option>
+                  <option value="api_sync">API Sync</option>
+                </select>
+              </div>
+              <div className="mb-6">
+                <label className="block text-gray-700 text-sm font-bold mb-2">Schedule (Cron)</label>
+                <input
+                  type="text"
+                  placeholder="* * * * *"
+                  value={newJob.schedule}
+                  onChange={(e) => setNewJob({ ...newJob, schedule: e.target.value })}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                />
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="mr-2 px-4 py-2 text-gray-500 hover:text-gray-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                >
+                  Create
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <div className="bg-white rounded shadow overflow-hidden">
         <table className="min-w-full">

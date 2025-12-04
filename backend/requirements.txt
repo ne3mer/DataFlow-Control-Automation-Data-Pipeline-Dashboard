@@ -9,7 +9,9 @@ celery
 redis
 python-jose[cryptography]
 passlib[bcrypt]
+bcrypt==4.0.1
 httpx
 python-multipart
 email-validator
 croniter
+beautifulsoup4

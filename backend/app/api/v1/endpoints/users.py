@@ -34,8 +34,7 @@ def create_user(
             detail="The user with this username already exists in the system",
         )
     
-    user = User.from_orm(user_in)
-    user.hashed_password = security.get_password_hash(user_in.password)
+    user = User.model_validate(user_in, update={"hashed_password": security.get_password_hash(user_in.password)})
     session.add(user)
     session.commit()
     session.refresh(user)

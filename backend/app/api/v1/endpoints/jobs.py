@@ -4,9 +4,9 @@ from sqlmodel import Session, select
 
 from app.api import deps
 from app.core.db import get_session
-from app.models.job import Job, JobCreate, JobRead, JobStatus
+from app.models.job import Job, JobCreate, JobRead, JobStatus, JobType
 from app.models.user import User
-from app.worker.tasks import test_task
+from app.worker.tasks import test_task, scrape_task
 
 router = APIRouter()
 
@@ -68,7 +68,11 @@ def run_job(
         raise HTTPException(status_code=404, detail="Job not found")
     
     # Trigger Celery task
-    task = test_task.delay(job.name)
+    if job.type == JobType.SCRAPER:
+        url = job.configuration.get("url", "https://example.com")
+        task = scrape_task.delay(url)
+    else:
+        task = test_task.delay(job.name)
     
     job.status = JobStatus.RUNNING
     session.add(job)
