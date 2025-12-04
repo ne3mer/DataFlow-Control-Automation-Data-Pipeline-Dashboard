@@ -186,18 +186,27 @@ export const JobDetailPage: React.FC = () => {
             <div className="mb-4">
               <h4 className="font-semibold mb-2">Sample Links:</h4>
               <div className="max-h-40 overflow-y-auto">
-                {runs[0].metrics.links.map((link, idx) => (
-                  <div key={idx} className="text-sm mb-1">
-                    <a 
-                      href={link.startsWith('http') ? link : runs[0].metrics?.url + link} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline break-all"
-                    >
-                      {link}
-                    </a>
-                  </div>
-                ))}
+                {runs[0].metrics.links.map((link, idx) => {
+                  const base = runs[0].metrics?.url || '';
+                  let href = link;
+                  try {
+                    href = new URL(link, base).toString();
+                  } catch {
+                    href = link;
+                  }
+                  return (
+                    <div key={idx} className="text-sm mb-1">
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline break-all"
+                      >
+                        {link}
+                      </a>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -207,7 +216,13 @@ export const JobDetailPage: React.FC = () => {
               <h4 className="font-semibold mb-2">Sample Images:</h4>
               <div className="grid grid-cols-3 gap-2">
                 {runs[0].metrics.images.map((img, idx) => {
-                  const imgUrl = img.startsWith('http') ? img : (runs[0].metrics?.url || '') + img;
+                  const base = runs[0].metrics?.url || '';
+                  let imgUrl = img;
+                  try {
+                    imgUrl = new URL(img, base).toString();
+                  } catch {
+                    imgUrl = img;
+                  }
                   return (
                     <div key={idx} className="border rounded overflow-hidden">
                       <img 
