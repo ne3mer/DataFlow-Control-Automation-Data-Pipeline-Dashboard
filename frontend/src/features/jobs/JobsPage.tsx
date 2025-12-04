@@ -14,6 +14,13 @@ interface Job {
 export const JobsPage: React.FC = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newJob, setNewJob] = useState<{ name: string; type: string; schedule: string; url: string }>({
+    name: '',
+    type: 'custom',
+    schedule: '',
+    url: ''
+  });
 
   useEffect(() => {
     fetchJobs();
@@ -39,15 +46,27 @@ export const JobsPage: React.FC = () => {
     }
   };
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newJob, setNewJob] = useState({ name: '', type: 'script', schedule: '' });
+  const cancelJob = async (id: number) => {
+    try {
+      await api.post(`/jobs/${id}/cancel`);
+      fetchJobs(); // Refresh list
+    } catch (error) {
+      console.error('Failed to cancel job', error);
+    }
+  };
 
   const createJob = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post('/jobs/', newJob);
+      const payload = {
+        name: newJob.name,
+        type: newJob.type,
+        schedule: newJob.schedule === '' ? null : newJob.schedule,
+        configuration: newJob.type === 'scraper' ? { url: newJob.url } : {}
+      };
+      await api.post('/jobs/', payload);
       setIsModalOpen(false);
-      setNewJob({ name: '', type: 'script', schedule: '' });
+      setNewJob({ name: '', type: 'custom', schedule: '', url: '' });
       fetchJobs();
     } catch (error) {
       console.error('Failed to create job', error);
@@ -58,7 +77,7 @@ export const JobsPage: React.FC = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Jobs</h1>
-        <button 
+        <button
           onClick={() => setIsModalOpen(true)}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
@@ -94,6 +113,21 @@ export const JobsPage: React.FC = () => {
                   <option value="api_sync">API Sync</option>
                 </select>
               </div>
+
+              {newJob.type === 'scraper' && (
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">Target URL</label>
+                  <input
+                    type="url"
+                    placeholder="https://example.com"
+                    value={newJob.url}
+                    onChange={(e) => setNewJob({ ...newJob, url: e.target.value })}
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    required
+                  />
+                </div>
+              )}
+
               <div className="mb-6">
                 <label className="block text-gray-700 text-sm font-bold mb-2">Schedule (Cron)</label>
                 <input
@@ -158,12 +192,21 @@ export const JobsPage: React.FC = () => {
                   {job.next_run_at ? new Date(job.next_run_at).toLocaleString() : '-'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button
-                    onClick={() => runJob(job.id)}
-                    className="text-indigo-600 hover:text-indigo-900 mr-4"
-                  >
-                    Run
-                  </button>
+                  {job.status === 'running' ? (
+                    <button
+                      onClick={() => cancelJob(job.id)}
+                      className="text-red-600 hover:text-red-900 mr-4"
+                    >
+                      Stop
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => runJob(job.id)}
+                      className="text-indigo-600 hover:text-indigo-900 mr-4"
+                    >
+                      Run
+                    </button>
+                  )}
                   <Link to={`/jobs/${job.id}`} className="text-gray-600 hover:text-gray-900">
                     View
                   </Link>

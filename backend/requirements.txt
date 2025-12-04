@@ -15,3 +15,5 @@ python-multipart
 email-validator
 croniter
 beautifulsoup4
+fake-useragent
+tenacity

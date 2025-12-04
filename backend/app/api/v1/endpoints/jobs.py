@@ -75,6 +75,33 @@ def run_job(
         task = test_task.delay(job.name)
     
     job.status = JobStatus.RUNNING
+    job.last_celery_task_id = task.id
+    session.add(job)
+    session.commit()
+    session.refresh(job)
+    return job
+
+@router.post("/{job_id}/cancel", response_model=JobRead)
+def cancel_job(
+    job_id: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(deps.get_current_user),
+) -> Any:
+    """
+    Cancel a running job.
+    """
+    job = session.get(Job, job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    if job.status != JobStatus.RUNNING:
+        raise HTTPException(status_code=400, detail="Job is not running")
+
+    if job.last_celery_task_id:
+        from app.worker.celery_app import celery_app
+        celery_app.control.revoke(job.last_celery_task_id, terminate=True)
+    
+    job.status = JobStatus.FAILED
     session.add(job)
     session.commit()
     session.refresh(job)
