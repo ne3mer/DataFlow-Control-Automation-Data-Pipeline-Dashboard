@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { api } from '../../lib/api';
+import { useWebSocket } from '../../hooks/useWebSocket';
 
 interface DashboardSummary {
   total_jobs: number;
@@ -16,18 +16,17 @@ export const DashboardPage: React.FC = () => {
     failure_rate: 0,
   });
 
+  const { lastMessage } = useWebSocket('/api/v1/ws/dashboard');
+
   useEffect(() => {
-    // Fetch dashboard data
-    // For now, we'll just simulate it or fetch real data if endpoints exist
+    if (lastMessage) {
+      setSummary(lastMessage);
+    }
+  }, [lastMessage]);
+
+  useEffect(() => {
+    // Initial fetch (optional if WS sends immediately)
     // api.get('/dashboard/summary').then(res => setSummary(res.data));
-    
-    // Mock data
-    setSummary({
-      total_jobs: 12,
-      active_pipelines: 3,
-      todays_runs: 45,
-      failure_rate: 2.5,
-    });
   }, []);
 
   return (
