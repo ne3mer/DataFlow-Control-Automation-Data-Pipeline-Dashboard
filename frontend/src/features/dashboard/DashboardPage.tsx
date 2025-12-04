@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { api } from '../../lib/api';
 import { useWebSocket } from '../../hooks/useWebSocket';
 
 interface DashboardSummary {
@@ -6,6 +7,12 @@ interface DashboardSummary {
   active_pipelines: number;
   todays_runs: number;
   failure_rate: number;
+}
+
+interface RunsPerDayPoint {
+  date: string;
+  total: number;
+  failed: number;
 }
 
 export const DashboardPage: React.FC = () => {
@@ -16,6 +23,8 @@ export const DashboardPage: React.FC = () => {
     failure_rate: 0,
   });
 
+  const [runsPerDay, setRunsPerDay] = useState<RunsPerDayPoint[]>([]);
+
   const { lastMessage } = useWebSocket('/api/v1/ws/dashboard');
 
   useEffect(() => {
@@ -25,8 +34,9 @@ export const DashboardPage: React.FC = () => {
   }, [lastMessage]);
 
   useEffect(() => {
-    // Initial fetch (optional if WS sends immediately)
-    // api.get('/dashboard/summary').then(res => setSummary(res.data));
+    // Initial fetch for summary and runs-per-day metrics
+    api.get('/dashboard/summary').then((res) => setSummary(res.data));
+    api.get('/dashboard/runs-per-day?days=7').then((res) => setRunsPerDay(res.data));
   }, []);
 
   return (
@@ -49,6 +59,48 @@ export const DashboardPage: React.FC = () => {
         <div className="bg-white p-6 rounded shadow">
           <h3 className="text-gray-500 text-sm font-medium">Failure Rate</h3>
           <p className="text-3xl font-bold text-red-500">{summary.failure_rate}%</p>
+        </div>
+      </div>
+
+      <div className="bg-white p-6 rounded shadow mb-8">
+        <h2 className="text-xl font-bold mb-4">Runs in the last 7 days</h2>
+        <div className="space-y-2">
+          {runsPerDay.map((day) => {
+            const total = day.total || 0;
+            const failed = day.failed || 0;
+            const success = Math.max(total - failed, 0);
+            const totalWidth = total === 0 ? 0 : 100;
+            const failedWidth = total === 0 ? 0 : (failed / total) * 100;
+            const successWidth = total === 0 ? 0 : (success / total) * 100;
+
+            return (
+              <div key={day.date}>
+                <div className="flex justify-between text-xs text-gray-600 mb-1">
+                  <span>{day.date}</span>
+                  <span>
+                    {total} runs ({failed} failed)
+                  </span>
+                </div>
+                <div className="w-full h-3 bg-gray-100 rounded overflow-hidden flex">
+                  <div
+                    className="bg-blue-500 h-full"
+                    style={{ width: `${totalWidth}%`, opacity: 0.2 }}
+                  />
+                  <div
+                    className="bg-red-500 h-full -ml-[100%]"
+                    style={{ width: `${failedWidth}%`, opacity: 0.6 }}
+                  />
+                  <div
+                    className="bg-emerald-500 h-full -ml-[100%]"
+                    style={{ width: `${successWidth}%`, opacity: 0.6 }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+          {runsPerDay.length === 0 && (
+            <p className="text-sm text-gray-500">No runs recorded yet.</p>
+          )}
         </div>
       </div>
 

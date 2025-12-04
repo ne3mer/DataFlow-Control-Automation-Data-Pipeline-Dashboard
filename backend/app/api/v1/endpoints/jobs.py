@@ -5,6 +5,7 @@ from sqlmodel import Session, select
 from app.api import deps
 from app.core.db import get_session
 from app.models.job import Job, JobCreate, JobRead, JobStatus, JobType
+from app.models.run import JobRun, JobRunRead
 from app.models.user import User
 from app.worker.tasks import test_task, scrape_task
 
@@ -70,9 +71,9 @@ def run_job(
     # Trigger Celery task
     if job.type == JobType.SCRAPER:
         url = job.configuration.get("url", "https://example.com")
-        task = scrape_task.delay(url)
+        task = scrape_task.delay(job.id, url)
     else:
-        task = test_task.delay(job.name)
+        task = test_task.delay(job.id, job.name)
     
     job.status = JobStatus.RUNNING
     job.last_celery_task_id = task.id
@@ -106,3 +107,22 @@ def cancel_job(
     session.commit()
     session.refresh(job)
     return job
+
+
+@router.get("/{job_id}/runs", response_model=List[JobRunRead])
+def read_job_runs(
+    job_id: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(deps.get_current_user),
+) -> Any:
+    """
+    List recent runs for a job.
+    """
+    statement = (
+        select(JobRun)
+        .where(JobRun.job_id == job_id)
+        .order_by(JobRun.started_at.desc())
+        .limit(50)
+    )
+    runs = session.exec(statement).all()
+    return runs

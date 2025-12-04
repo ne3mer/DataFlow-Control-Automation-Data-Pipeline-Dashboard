@@ -31,10 +31,9 @@ class Job(JobBase, table=True):
     last_duration_ms: Optional[int] = None
     last_exit_code: Optional[int] = None
     last_celery_task_id: Optional[str] = None
-    
+
     # Relationships
-    # owner: Optional["User"] = Relationship(back_populates="jobs")
-    # runs: List["JobRun"] = Relationship(back_populates="job")
+    runs: List["JobRun"] = Relationship(back_populates="job")  # type: ignore[name-defined]
 
 class JobCreate(JobBase):
     pass

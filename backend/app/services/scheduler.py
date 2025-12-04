@@ -33,9 +33,9 @@ def check_and_enqueue_jobs():
             # Check if due
             if job.next_run_at and job.next_run_at <= now:
                 logger.info(f"Enqueuing job {job.id}: {job.name}")
-                
-                # Enqueue task
-                test_task.delay(job.name)
+
+                # Enqueue task, recording run history
+                test_task.delay(job.id, job.name)
                 
                 # Update job status and next run
                 job.last_run_at = now

@@ -1,5 +1,5 @@
 from typing import Optional, List, Dict, Any
-from sqlmodel import Field, SQLModel, Column, JSON
+from sqlmodel import Field, Relationship, SQLModel, Column, JSON
 from enum import Enum
 
 class PipelineStatus(str, Enum):
@@ -16,6 +16,8 @@ class PipelineBase(SQLModel):
 class Pipeline(PipelineBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     status: PipelineStatus = Field(default=PipelineStatus.IDLE)
+
+    runs: List["PipelineRun"] = Relationship(back_populates="pipeline")  # type: ignore[name-defined]
 
 class PipelineCreate(PipelineBase):
     pass
