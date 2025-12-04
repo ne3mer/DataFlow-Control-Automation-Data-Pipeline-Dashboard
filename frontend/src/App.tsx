@@ -5,6 +5,8 @@ import { Layout } from './components/Layout';
 import { DashboardPage } from './features/dashboard/DashboardPage';
 import { JobsPage } from './features/jobs/JobsPage';
 import { JobDetailPage } from './features/jobs/JobDetailPage';
+import { PipelinesPage } from './features/pipelines/PipelinesPage';
+import { PipelineDetailPage } from './features/pipelines/PipelineDetailPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -47,6 +49,26 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <JobDetailPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pipelines"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <PipelinesPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pipelines/:id"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <PipelineDetailPage />
                 </Layout>
               </ProtectedRoute>
             }
